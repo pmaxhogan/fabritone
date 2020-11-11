@@ -21,6 +21,7 @@ import baritone.utils.schematic.StaticSchematic;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.datafixer.fix.ItemIdFix;
+import net.minecraft.datafixer.fix.ItemInstanceTheFlatteningFix;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -32,6 +33,8 @@ import net.minecraft.util.registry.Registry;
 public final class MCEditSchematic extends StaticSchematic {
 
     public MCEditSchematic(CompoundTag schematic) {
+        System.out.println("this schematic: " + schematic.toString());
+
         String type = schematic.getString("Materials");
         if (!type.equals("Alpha")) {
             throw new IllegalStateException("bad schematic " + type);
@@ -39,11 +42,13 @@ public final class MCEditSchematic extends StaticSchematic {
         this.x = schematic.getInt("Width");
         this.y = schematic.getInt("Height");
         this.z = schematic.getInt("Length");
+
         byte[] blocks = schematic.getByteArray("Blocks");
-//        byte[] metadata = schematic.getByteArray("Data");
+        byte[] metadata = schematic.getByteArray("Data");
 
         byte[] additional = null;
         if (schematic.contains("AddBlocks")) {
+            System.out.println("contains AddBlocks");
             byte[] addBlocks = schematic.getByteArray("AddBlocks");
             additional = new byte[addBlocks.length * 2];
             for (int i = 0; i < addBlocks.length; i++) {
@@ -62,8 +67,19 @@ public final class MCEditSchematic extends StaticSchematic {
                         // additional is 0 through 15 inclusive since it's & 0xF above
                         blockID |= additional[blockInd] << 8;
                     }
-                    Block block = Registry.BLOCK.get(Identifier.tryParse(ItemIdFix.fromId(blockID)));
-//                    int meta = metadata[blockInd] & 0xFF;
+                    int meta = metadata[blockInd] & 0xFF;
+
+                    String itemFromBlockId = ItemIdFix.fromId(blockID);
+                    String itemFromMetaId = ItemInstanceTheFlatteningFix.getItem(itemFromBlockId, meta);
+
+                    Block block;
+                    // if our block is something not changed in The Flattening, eg. cobblestone
+                    if(itemFromMetaId == null){
+                        block = Registry.BLOCK.get(Identifier.tryParse(itemFromBlockId));
+                    }else{// if our block is something changed in The Flattening, eg. any kind of planks
+                        block = Registry.BLOCK.get(Identifier.tryParse(itemFromMetaId));
+                    }
+
 //                    this.states[x][z][y] = block.getStateFromMeta(meta);
                     this.states[x][z][y] = block.getDefaultState();
                 }
