@@ -33,8 +33,6 @@ import net.minecraft.util.registry.Registry;
 public final class MCEditSchematic extends StaticSchematic {
 
     public MCEditSchematic(CompoundTag schematic) {
-        System.out.println("this schematic: " + schematic.toString());
-
         String type = schematic.getString("Materials");
         if (!type.equals("Alpha")) {
             throw new IllegalStateException("bad schematic " + type);
@@ -48,7 +46,6 @@ public final class MCEditSchematic extends StaticSchematic {
 
         byte[] additional = null;
         if (schematic.contains("AddBlocks")) {
-            System.out.println("contains AddBlocks");
             byte[] addBlocks = schematic.getByteArray("AddBlocks");
             additional = new byte[addBlocks.length * 2];
             for (int i = 0; i < addBlocks.length; i++) {
