@@ -58,6 +58,7 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.shape.VoxelShape;
 
 import java.io.File;
@@ -478,7 +479,7 @@ public final class BuilderProcess extends BaritoneProcessHelper implements IBuil
             outer:
             for (BlockState desired : desirableOnHotbar) {
                 for (int i = 0; i < 9; i++) {
-                    if (valid(approxPlaceable.get(i), desired, true)) {
+                    if (approxPlaceable.get(i) != null && valid(approxPlaceable.get(i), desired, true)) {
                         usefulSlots.add(i);
                         continue outer;
                     }
@@ -489,7 +490,7 @@ public final class BuilderProcess extends BaritoneProcessHelper implements IBuil
             outer:
             for (int i = 9; i < 36; i++) {
                 for (BlockState desired : noValidHotbarOption) {
-                    if (valid(approxPlaceable.get(i), desired, true)) {
+                    if (approxPlaceable.get(i) != null && valid(approxPlaceable.get(i), desired, true)) {
                         baritone.getInventoryBehavior().attemptToPutOnHotbar(i, usefulSlots::contains);
                         break outer;
                     }
@@ -497,9 +498,9 @@ public final class BuilderProcess extends BaritoneProcessHelper implements IBuil
             }
         }
 
-        Goal goal = assemble(bcc, approxPlaceable.subList(0, 9));
+        Goal goal = assemble(bcc, approxPlaceable.subList(0, 9), false);
         if (goal == null) {
-            goal = assemble(bcc, approxPlaceable); // we're far away, so assume that we have our whole inventory to recalculate placeable properly
+            goal = assemble(bcc, approxPlaceable, true); // we're far away, so assume that we have our whole inventory to recalculate placeable properly
             if (goal == null) {
                 logDirect("Unable to do it. Pausing. resume to resume, cancel to cancel");
                 paused = true;
@@ -597,15 +598,29 @@ public final class BuilderProcess extends BaritoneProcessHelper implements IBuil
         }
     }
 
-    private Goal assemble(BuilderCalculationContext bcc, List<BlockState> approxPlaceable) {
+    private Goal assemble(BuilderCalculationContext bcc, List<BlockState> approxPlaceable, boolean isInventory) {
         List<BetterBlockPos> placeable = new ArrayList<>();
         List<BetterBlockPos> breakable = new ArrayList<>();
         List<BetterBlockPos> sourceLiquids = new ArrayList<>();
         incorrectPositions.forEach(pos -> {
             BlockState state = bcc.bsi.get0(pos);
             if (state.getBlock() instanceof AirBlock) {
-                if (approxPlaceable.contains(bcc.getSchematic(pos.x, pos.y, pos.z, state))) {
-                    placeable.add(pos);
+                // for every block state in our hotbar/inventory...
+                for (BlockState blockState : approxPlaceable) {
+                    BlockState requiredBlockState = bcc.getSchematic(pos.x, pos.y, pos.z, state);
+
+                    // if it's not null and is the same as the block we need to add, add this
+                    if(requiredBlockState != null &&
+                        requiredBlockState.getBlock() != null &&
+                        blockState != null &&
+                        blockState.getBlock() != null &&
+                        Registry.BLOCK.getId(requiredBlockState.getBlock()).toString().equals(Registry.BLOCK.getId(blockState.getBlock()).toString())){
+                        placeable.add(pos);
+                    }/*else{
+                        String str = (requiredBlockState != null && requiredBlockState .getBlock() != null) ? Registry.BLOCK.getId(requiredBlockState.getBlock()).toString() : "NULL";
+                        System.out.println(":" + str + "" + " " + blockState);
+                        System.out.println("\tCould not find " + str + " in " + (isInventory ? "inventory" : "hotbar"));
+                    }*/
                 }
             } else {
                 if (state.getBlock() instanceof FluidBlock) {
@@ -810,7 +825,7 @@ public final class BuilderProcess extends BaritoneProcessHelper implements IBuil
         if (!(current.getBlock() instanceof AirBlock) && Baritone.settings().buildIgnoreExisting.value && !itemVerify) {
             return true;
         }
-        return current.equals(desired);
+        return Registry.BLOCK.getId(current.getBlock()).toString().equals(Registry.BLOCK.getId(desired.getBlock()).toString());
     }
 
     public class BuilderCalculationContext extends CalculationContext {
