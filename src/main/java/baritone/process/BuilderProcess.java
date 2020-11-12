@@ -616,12 +616,19 @@ public final class BuilderProcess extends BaritoneProcessHelper implements IBuil
                         blockState.getBlock() != null &&
                         Registry.BLOCK.getId(requiredBlockState.getBlock()).toString().equals(Registry.BLOCK.getId(blockState.getBlock()).toString())){
                         placeable.add(pos);
-                    }/*else{
-                        String str = (requiredBlockState != null && requiredBlockState .getBlock() != null) ? Registry.BLOCK.getId(requiredBlockState.getBlock()).toString() : "NULL";
-                        System.out.println(":" + str + "" + " " + blockState);
-                        System.out.println("\tCould not find " + str + " in " + (isInventory ? "inventory" : "hotbar"));
-                    }*/
+                    }else{
+//                        String str = (requiredBlockState != null && requiredBlockState .getBlock() != null) ? Registry.BLOCK.getId(requiredBlockState.getBlock()).toString() : "NULL";
+//                        System.out.println(":" + str + "" + " " + blockState);
+//                        System.out.println("\tCould not find " + str + " in " + (isInventory ? "inventory" : "hotbar"));
+                    }
                 }
+
+//                if (approxPlaceable.contains(bcc.getSchematic(pos.x, pos.y, pos.z, state))) {
+//                    placeable.add(pos);
+//                }else{
+//                    logDirect(":" + bcc.getSchematic(pos.x, pos.y, pos.z, state) + " " + approxPlaceable);
+//                    logDirect("\tCould not find " + Registry.BLOCK.getId(bcc.getSchematic(pos.x, pos.y, pos.z, state).getBlock()) + " in " + (isInventory ? "inventory" : "hotbar"));
+//                }
             } else {
                 if (state.getBlock() instanceof FluidBlock) {
                     // if the block itself is JUST a liquid (i.e. not just a waterlogged block), we CANNOT break it
@@ -807,6 +814,9 @@ public final class BuilderProcess extends BaritoneProcessHelper implements IBuil
 
     private boolean valid(BlockState current, BlockState desired, boolean itemVerify) {
         if (desired == null) {
+            return true;
+        }
+        if (desired.getBlock() instanceof AirBlock && Baritone.settings().alwaysOk.value.contains(current.getBlock())) {
             return true;
         }
         if (current.getBlock() instanceof FluidBlock && Baritone.settings().okIfWater.value) {

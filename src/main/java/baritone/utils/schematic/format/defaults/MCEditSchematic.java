@@ -82,5 +82,8 @@ public final class MCEditSchematic extends StaticSchematic {
                 }
             }
         }
+
+        System.out.println("states: " + this.states);
+        System.out.println("schematic " + schematic.toString());
     }
 }

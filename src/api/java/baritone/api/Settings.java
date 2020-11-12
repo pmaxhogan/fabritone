@@ -203,6 +203,14 @@ public final class Settings {
 
     )));
 
+
+    /**
+     * A list of blocks to be treated as always OK when building.
+     */
+    public final Setting<List<Block>> alwaysOk = new Setting<>(new ArrayList<>(Arrays.asList(
+
+    )));
+
     /**
      * A list of blocks to become air
      * <p>
