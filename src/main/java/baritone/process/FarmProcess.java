@@ -254,12 +254,17 @@ public final class FarmProcess extends BaritoneProcessHelper implements IFarmPro
         }
 
         if (calcFailed) {
-            logDirect("Farm failed");
-            if (Baritone.settings().desktopNotifications.value && Baritone.settings().notificationOnFarmFail.value) {
-                NotificationHelper.notify("Farm failed", true);
+            if(Baritone.settings().farmForever.value) {
+                logDebug("Retrying farm...");
+                return new PathingCommand(null, PathingCommandType.DEFER);
+            }else{
+                logDirect("Farm failed");
+                if (Baritone.settings().desktopNotifications.value && Baritone.settings().notificationOnFarmFail.value) {
+                    NotificationHelper.notify("Farm failed", true);
+                }
+                onLostControl();
+                return new PathingCommand(null, PathingCommandType.REQUEST_PAUSE);
             }
-            onLostControl();
-            return new PathingCommand(null, PathingCommandType.REQUEST_PAUSE);
         }
 
         List<Goal> goalz = new ArrayList<>();
