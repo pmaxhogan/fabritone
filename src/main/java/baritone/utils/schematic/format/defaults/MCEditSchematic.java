@@ -26,7 +26,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
-import java.util.Arrays;
+import java.util.*;
 
 /**
  * @author Brady
@@ -43,8 +43,14 @@ public final class MCEditSchematic extends StaticSchematic {
         this.y = schematic.getInt("Height");
         this.z = schematic.getInt("Length");
 
-        byte[] blocks = schematic.getByteArray("Blocks");
-        byte[] metadata = schematic.getByteArray("Data");
+        byte[] blocks = schematic.getByteArray("BlockData");
+        Set<String> keys = schematic.getCompound("Palette").getKeys();
+        HashMap<Integer, String> idToData = new HashMap<Integer, String>();
+        for(String key : keys){
+            int id = schematic.getCompound("Palette").getInt(key);
+            idToData.put(id, key);
+        }
+
 
         byte[] additional = null;
         if (schematic.contains("AddBlocks")) {
@@ -66,7 +72,11 @@ public final class MCEditSchematic extends StaticSchematic {
                         // additional is 0 through 15 inclusive since it's & 0xF above
                         blockID |= additional[blockInd] << 8;
                     }
-                    int meta = metadata[blockInd] & 0xFF;
+
+                    System.out.println("block data id " + blockID);
+                    System.out.println("block thing whatever " + idToData.get(blockID));
+
+                    int meta = 0;//metadata[blockInd] & 0xFF;
 
                     String itemFromBlockId = ItemIdFix.fromId(blockID);
                     String itemFromMetaId = ItemInstanceTheFlatteningFix.getItem(itemFromBlockId, meta);
