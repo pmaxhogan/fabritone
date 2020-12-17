@@ -76,6 +76,7 @@ public final class MCEditSchematic extends StaticSchematic {
                     }else{// if our block is something changed in The Flattening, eg. any kind of planks
                         block = Registry.BLOCK.get(Identifier.tryParse(itemFromMetaId));
                     }
+//                    System.out.println(block.getDefaultState());
 
 //                    this.states[x][z][y] = block.getStateFromMeta(meta);
                     this.states[x][z][y] = block.getDefaultState();
