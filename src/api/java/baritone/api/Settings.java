@@ -57,6 +57,11 @@ public final class Settings {
     public final Setting<Boolean> allowPlace = new Setting<>(true);
 
     /**
+     * Keep trying to farm even if the farm fails
+     */
+    public final Setting<Boolean> farmForever = new Setting<>(true);
+
+    /**
      * Allow Baritone to move items in your inventory to your hotbar
      */
     public final Setting<Boolean> allowInventory = new Setting<>(false);
