@@ -26,6 +26,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
+import java.util.Arrays;
+
 /**
  * @author Brady
  * @since 12/27/2019
@@ -69,13 +71,18 @@ public final class MCEditSchematic extends StaticSchematic {
                     String itemFromBlockId = ItemIdFix.fromId(blockID);
                     String itemFromMetaId = ItemInstanceTheFlatteningFix.getItem(itemFromBlockId, meta);
 
+
                     Block block;
+
                     // if our block is something not changed in The Flattening, eg. cobblestone
                     if(itemFromMetaId == null){
                         block = Registry.BLOCK.get(Identifier.tryParse(itemFromBlockId));
                     }else{// if our block is something changed in The Flattening, eg. any kind of planks
                         block = Registry.BLOCK.get(Identifier.tryParse(itemFromMetaId));
                     }
+
+                    System.out.println(blockID + ": blockid " + itemFromBlockId + " metaid " + itemFromMetaId);
+
 //                    System.out.println(block.getDefaultState());
 
 //                    this.states[x][z][y] = block.getStateFromMeta(meta);
@@ -84,7 +91,7 @@ public final class MCEditSchematic extends StaticSchematic {
             }
         }
 
-        System.out.println("states: " + this.states);
+        System.out.println("states: " + Arrays.deepToString(this.states));
         System.out.println("schematic " + schematic.toString());
     }
 }
