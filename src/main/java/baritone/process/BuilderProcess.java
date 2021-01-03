@@ -53,6 +53,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.text.MutableText;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Pair;
 import net.minecraft.util.hit.BlockHitResult;
@@ -60,6 +61,7 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.shape.VoxelShape;
+import sun.security.ec.point.ProjectivePoint;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -499,10 +501,23 @@ public final class BuilderProcess extends BaritoneProcessHelper implements IBuil
         }
 
         Goal goal = assemble(bcc, approxPlaceable.subList(0, 9), false);
+
         if (goal == null) {
             goal = assemble(bcc, approxPlaceable, true); // we're far away, so assume that we have our whole inventory to recalculate placeable properly
             if (goal == null) {
-                logDirect("Unable to do it. Pausing. resume to resume, cancel to cancel");
+                List<BlockState> printedBlockStates = new ArrayList<>();
+
+                for(BlockState state : bcc.placeable){
+                    MutableText blockName = state.getBlock().getName();
+                    if(!printedBlockStates.contains(state) && !approxPlaceable.contains(state)){
+                        printedBlockStates.add(state);
+                        logDirect("Missing block state " + blockName);
+                    }else if(approxPlaceable.contains(state)){
+                        logDirect("Found block state " + blockName);
+                    }
+                }
+
+                logDirect("Unable to build schematic. Pausing. resume to resume, cancel to cancel");
                 paused = true;
                 return new PathingCommand(null, PathingCommandType.REQUEST_PAUSE);
             }
