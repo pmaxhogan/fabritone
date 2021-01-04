@@ -61,7 +61,6 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.shape.VoxelShape;
-import sun.security.ec.point.ProjectivePoint;
 
 import java.io.File;
 import java.io.FileInputStream;
